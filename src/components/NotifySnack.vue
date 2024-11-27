@@ -38,7 +38,8 @@ export default {
                     const usersArray = Array.isArray(usersConnected.value) ? usersConnected.value : [];
                     userData.value = usersArray.find((user) => user.userId === messageData.sender);
                     if (userData.value) {
-                        snackbar.value = userActiveChat.value && userActiveChat.value.userId !== messageData.sender;
+                        const validateUser = userActiveChat.value && (userActiveChat.value.userId !== messageData.sender)
+                        snackbar.value = validateUser === null ? true : false;
                     }
                 }
             });

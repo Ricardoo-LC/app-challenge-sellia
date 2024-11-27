@@ -69,6 +69,7 @@ export default createStore({
       });
       commit("setUser", null);
       commit("setActiveRoom", null);
+      commit("userChatActive", null);
 
       if (typeof window !== "undefined" && window.localStorage) {
         localStorage.removeItem("chatApp");
