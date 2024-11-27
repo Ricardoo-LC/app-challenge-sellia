@@ -1,26 +1,51 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app">
+    <ChatRoom v-if="user" />
+    <InputUserName v-else />
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { computed, watch } from 'vue';
+import { useStore } from 'vuex';
+import InputUserName from '@/views/InputUserName.vue';
+import ChatRoom from '@/views/ChatRoom.vue';
+import {socket} from "@/socket";
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
-}
-</script>
+    InputUserName,
+    ChatRoom,
+  },
+  setup() {
+    const store = useStore();
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+    const user = computed(() => store.getters.getUser);
+
+    const connect = () => {
+      if (!socket.connected) {
+        socket.connect();
+      }
+    };
+
+    const disconnect = () => {
+      if (socket.connected) {
+        socket.disconnect();
+      }
+    };
+
+    watch(user, (newUser) => {
+      if (newUser) {
+        connect();
+      } else {
+        disconnect();
+      }
+    });
+
+    return {
+      user
+    };
+  },
+};
+</script>

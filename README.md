@@ -1,24 +1,20 @@
-# app-challenge-sellia
+# APP REST challenge Sellia
 
-## Project setup
-```
-npm install
-```
+## Instrucciones para ejecutar el proyecto en un entorno Local
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+### Prerequisitos
 
-### Compiles and minifies for production
-```
-npm run build
-```
+- Node.js (>=18.x.x)
+- npm (>=8.x.x) o yarn (>=1.x.x)
+- MongoDB (>=8.x)
 
-### Lints and fixes files
-```
-npm run lint
-```
+### Configuración del Proyecto
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+1. Una vez clonado, instala las dependencias
+  ```bash
+   npm install
+  ```
+2. Corre localmente el proyecto en el puerto 8080 
+  ```bash
+  npm run serve
+  ```
