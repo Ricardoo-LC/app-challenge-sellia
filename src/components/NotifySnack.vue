@@ -34,13 +34,11 @@ export default {
         
         onMounted(() => {
             socket.on('messageReceived', (messageData) => {
-                if(userActiveChat.value && userActiveChat.value.userId !== messageData.sender){
-                    if (user.value && user.value._id === messageData.received) {
-                        const usersArray = Array.isArray(usersConnected.value) ? usersConnected.value : [];
-                        userData.value = usersArray.find((user) => user.userId === messageData.sender);
-                        if (userData.value) {
-                            snackbar.value = true;
-                        }
+                if (user.value && user.value._id === messageData.received) {
+                    const usersArray = Array.isArray(usersConnected.value) ? usersConnected.value : [];
+                    userData.value = usersArray.find((user) => user.userId === messageData.sender);
+                    if (userData.value) {
+                        snackbar.value = userActiveChat.value && userActiveChat.value.userId !== messageData.sender;
                     }
                 }
             });

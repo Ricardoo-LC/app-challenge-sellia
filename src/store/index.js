@@ -69,6 +69,11 @@ export default createStore({
       });
       commit("setUser", null);
       commit("setActiveRoom", null);
+
+      if (typeof window !== "undefined" && window.localStorage) {
+        localStorage.removeItem("chatApp");
+        localStorage.removeItem("user");
+      }
     },
     usersConnected({ commit, state }, users) {
       const userFilter = users.filter(

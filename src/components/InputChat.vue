@@ -3,8 +3,16 @@
         <v-container>
             <v-row>
                 <v-col cols="12">
-                    <v-text-field v-model="message" placeholder="Escribe un mensaje" type="text" variant="outlined" :disabled="disabled"
-                        clearable>
+                    <v-text-field 
+                        v-model="message" 
+                        placeholder="Escribe un mensaje" 
+                        type="text" 
+                        variant="outlined" 
+                        :disabled="disabled"
+                        clearable
+                        :error="!!errorMessage"
+                        :error-messages="errorMessage"
+                    >
                         <template v-slot:prepend>
                             <v-avatar color="indigo-darken-3" id="menu-clip">
                                 <v-icon icon="mdi-paperclip-plus"></v-icon>
@@ -16,7 +24,7 @@
                                             <v-icon icon="mdi-image-plus-outline"></v-icon>
                                         </template>
                                     </v-list-item>
-                                    <v-list-item title="Archivo" link @click="selectFile('*')">
+                                    <v-list-item title="Archivo" link @click="selectFile('application/pdf')">
                                         <template v-slot:prepend>
                                             <v-icon icon="mdi-file-document-plus-outline"></v-icon>
                                         </template>
@@ -24,8 +32,8 @@
                                 </v-list>
                             </v-menu>
                         </template>
-                         <template v-if="selectedFile" v-slot:prepend-inner>
-                             <v-chip v-if="selectedFile" color="indigo-darken-3" closable label @click:close="clearFile">
+                        <template v-if="selectedFile" v-slot:prepend-inner>
+                            <v-chip color="indigo-darken-3" closable label @click:close="clearFile('')">
                                 <v-icon v-if="selectedFile.type.includes('image')" icon="mdi-image-outline" start></v-icon>
                                 <v-icon v-else icon="mdi-file-document-outline" start></v-icon>
                                 {{ selectedFile.name }}
@@ -37,7 +45,7 @@
                             </v-fade-transition>
                         </template>
                     </v-text-field>
-                    <input type="file" ref="fileInput" class="d-none" @change="handleFileChange" :accept="fileAcceptType" />
+                    <input type="file" ref="fileInput" class="d-none" @change="handleFileChange" accept="*" />
                 </v-col>
             </v-row>
         </v-container>
@@ -59,23 +67,41 @@ export default {
     setup() {
         const store = useStore();
         const user = store.getters.getUser;
-
         const message = ref('');
         const loading = ref(false);
         const selectedFile = ref(null); 
-        const fileAcceptType = ref('*');
+        const fileAcceptType = ref('');
+        const errorMessage = ref('');
+        const fileInput = ref(null);
+        const MAX_FILE_SIZE = 500 * 1024; 
 
         const selectFile = (acceptType) => {
             fileAcceptType.value = acceptType;
-            fileInput.value.click();
+            fileInput.value?.click();
         };
 
-        const fileInput = ref(null);
 
         const handleFileChange = (event) => {
+            clearFile("")
             const file = event.target.files[0];
             if (file) {
+                if (file.size > MAX_FILE_SIZE) {
+                    clearFile('El archivo excede el tamaño máximo de 500 KB.')
+                    return;
+                }
+
+                if (fileAcceptType.value === 'application/pdf' && file.type !== 'application/pdf') {
+                    clearFile('Solo se aceptan archivos en formato PDF.')
+                    return;
+                }
+
+                if (fileAcceptType.value === 'image/*' && !file.type.startsWith('image/')) {
+                    clearFile('Solo se aceptan archivos de imagen (JPG, PNG, etc.).')
+                    return;
+                }
+
                 selectedFile.value = file;
+                errorMessage.value = ''; 
             }
         };
 
@@ -113,17 +139,30 @@ export default {
                     message: messageContent,
                 });
 
-                message.value = '';
-                selectedFile.value = null;
+                clearFile("")
+                message.value = ""
                 loading.value = false;
             }
         };
 
-        const clearFile = () => {
+        const clearFile = (message) => {
             selectedFile.value = null;
+            errorMessage.value = message;
         };
 
-        return { user, message, loading, sendMessage, selectedFile, selectFile, handleFileChange, fileInput, fileAcceptType, clearFile };
+        return { 
+            user, 
+            message, 
+            loading, 
+            sendMessage, 
+            selectedFile, 
+            selectFile, 
+            handleFileChange, 
+            fileInput, 
+            fileAcceptType, 
+            clearFile, 
+            errorMessage 
+        };
     },
 };
 </script>

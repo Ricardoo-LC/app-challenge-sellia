@@ -60,12 +60,17 @@ export default {
     const user = computed(() => store.getters.getUser);
     const usersConnected = computed(() => store.getters.getUsersConnected);
     const activeRoom = computed(() => store.getters.getActiveRoom);
+    const userChatActive = computed(() => store.getters.getUserChatActive);
     
 
     onMounted(() => {
       socket.on('connectedUsers', (users) => {
         store.dispatch('usersConnected', users);
       });
+
+      if(userChatActive.value) {
+        openChat(userChatActive.value);
+      }
     });
 
     const openChat = (userSelected) => {

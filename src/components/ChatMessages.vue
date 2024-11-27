@@ -1,16 +1,16 @@
 <template>
     <div>
-        <v-card v-if="type === 'sender'" class="my-4 rounded-e-lg" elevation="2" :max-width="message.fileType && message.fileType !== 'image' ? 100 : 600" color="blue-lighten-5">
+        <v-card v-if="type === 'sender'" class="my-4 rounded-e-lg" elevation="2" :max-width="message?.fileType && message?.fileType !== 'image' ? 100 : 600" color="blue-lighten-5">
             <v-card-item>
-                <template v-if="message.fileType">    
-                    <v-img v-if="message.fileType === 'image'"
+                <template v-if="message?.fileType">    
+                    <v-img v-if="message?.fileType === 'image'"
                     :aspect-ratio="1"
                     class="bg-white"
-                    :src="message.urlFile"
+                    :src="message?.urlFile"
                     width="300"
                     cover
                 ></v-img>
-                <a v-else href="javascript:void(0)" @click="openPdf(message.urlFile)" style="text-decoration: none; color: inherit;">
+                <a v-else href="javascript:void(0)" @click="openPdf(message?.urlFile)" style="text-decoration: none; color: inherit;">
                     <v-icon icon="mdi-file-document-outline" color="indigo-darken-3" :size="64"></v-icon>
                     <p class="text-body-2 text-center text-indigo-darken-3">Abrir</p>
                 </a>
@@ -21,18 +21,18 @@
                 <p class="text-caption text-right text-grey-darken-1">{{ formatTime(time) }}</p>
             </v-card-item>
         </v-card>
-        <v-card v-if="type === 'receiver'" class="ml-auto my-4 rounded-s-lg" elevation="2" :max-width="message.fileType && message.fileType !== 'image' ? 100 : 600"
+        <v-card v-if="type === 'receiver'" class="ml-auto my-4 rounded-s-lg" elevation="2" :max-width="message?.fileType && message?.fileType !== 'image' ? 100 : 600"
             color="indigo-darken-3">
             <v-card-item>
-                <template v-if="message.fileType">    
-                    <v-img v-if="message.fileType === 'image'"
+                <template v-if="message?.fileType">    
+                    <v-img v-if="message?.fileType === 'image'"
                     :aspect-ratio="1"
                     class="bg-white"
-                    :src="message.urlFile"
+                    :src="message?.urlFile"
                     width="300"
                     cover
                     ></v-img>
-                    <a v-else href="javascript:void(0)" @click="openPdf(message.urlFile)" style="text-decoration: none; color: inherit;">
+                    <a v-else href="javascript:void(0)" @click="openPdf(message?.urlFile)" style="text-decoration: none; color: inherit;">
                         <v-icon icon="mdi-file-document-outline" color="blue-lighten-5" :size="64"></v-icon>
                         <p class="text-body-2 text-center text-blue-lighten-5">Abrir</p>
                     </a>
@@ -61,8 +61,19 @@ export default {
             validator: value => ['sender', 'receiver', 'date'].includes(value),
         },
         message: {
-            type: String,
+            type: [String, Object], 
             required: true,
+            default: () => "",
+            validator(value) {
+            
+                if (typeof value === "object") {
+                    return (
+                        Object.prototype.hasOwnProperty.call(value, "fileType") &&
+                        Object.prototype.hasOwnProperty.call(value, "urlFile")
+                    );
+                }
+                return typeof value === "string";
+            },
         },
         time: {
             type: String,
@@ -71,7 +82,12 @@ export default {
     },
     methods: {
         formatTime(time) {
-            return format(time, 'h:mm b').replace('AM', 'a. m.').replace('PM', 'p. m.');
+            try{
+                return format(time, 'h:mm b').replace('AM', 'a. m.').replace('PM', 'p. m.');
+            }catch(e){
+                return ""
+            }
+            
         },
         openPdf(urlFile) {
             const newTab = window.open();
